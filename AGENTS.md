@@ -19,3 +19,17 @@ CI is html-validate plus `script.js` syntax — nothing validates CSS, other pag
 - Theming has two classes of surface: flipping surfaces use semantic classes (`pf-card`, `pf-ink-muted`) reading `--pf-surface`/`--pf-ink`; the hero, fit guide, and footer hold dark in both themes with literal utilities. Do not unify them — the split is the design.
 - `theme.js` runs blocking in `<head>` to set `html.theme-dark` before first paint. Deferring it causes a flash.
 - CSP is fully self-hosted (`style`/`font`/`media`/`script` all `'self'`) — stricter than the portfolio's. Any external reference is blocked at runtime and CI will not catch it.
+
+## Declared gates
+
+The machine-readable gate set. `scripts/fleet-conformance.sh` requires this block
+and the workspace done-gate hook runs every `gate:` line before a session may
+finish, so what runs is what is written here rather than what a hook guessed from
+`package.json`. Each key states its own boundary: `gate:` runs at session end and
+must be local and quick; `release:` runs before a pull request and may be slow;
+`cadence:` is scheduled or needs the live machine and is run by neither.
+
+```fleet-gates
+gate: npx --yes html-validate@9 index.html
+gate: node --check script.js
+```
